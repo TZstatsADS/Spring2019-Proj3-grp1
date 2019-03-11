@@ -6,7 +6,10 @@
 
 有original的是晚上找的资源，全是.py文件，oop的结构，看起来可能有些费劲。我们要写成notebook的格式。
 
-有Shengjie的是我写照着改的demo，主要是模型部分，应该打开main.pynb直接运行就好。
+有Shengjie的是我写照着改的demo，主要是模型部分。Checkpoints里面有个与test.h5对应的train.h5太大了传不上github，我就放百度网盘里了……下载好了直接覆盖原来的checkpoints文件夹就好……其它应该打开main.pynb直接运行就好。
+
+链接：https://pan.baidu.com/s/1maSLvPX4XWS22aatMKOjDQ 
+提取码：bmby 
 
 #### main.pynb的主要内容
 
