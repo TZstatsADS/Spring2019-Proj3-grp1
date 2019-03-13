@@ -2,4 +2,6 @@
 
 ### Doc folder
 
-The doc directory contains the report or presentation files. It can have subfolders.  
+Please refer to [baseline.py](baseline.py)
+Due to the large size of our data, I only uploaded 20 pics.
+
