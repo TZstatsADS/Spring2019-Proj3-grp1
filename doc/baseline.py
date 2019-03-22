@@ -5,14 +5,11 @@ import cv2
 import random
 import time
 import sys
+from joblib import dump, load
 from sklearn.ensemble import GradientBoostingRegressor
 
 
 def Features(LR_img, HR_img, n_points = 1000, each_pixel = False):
-
-    if len(LR_img) != len(HR_img):
-        print("train and test not the same length")
-        sys.exit(0)
 
     datanum = len(LR_img)
     features = []
@@ -50,8 +47,9 @@ def Features(LR_img, HR_img, n_points = 1000, each_pixel = False):
         for ind in range(datanum):
             row = np.array(range(LR_img[ind].shape[0]))
             col = np.array(range(LR_img[ind].shape[1]))
-            for r, c in zip(row, col):
-                features.append(surrounding(LR_img[ind], r, c))
+            for r in row:
+                for c in col:
+                    features.append(surrounding(LR_img[ind], r, c))
 
         return(np.array(features))
 
@@ -59,6 +57,11 @@ def Features(LR_img, HR_img, n_points = 1000, each_pixel = False):
         # make sure you have the right shape of features 
         # feat : n_files x n_points, 8, 3
         # resp : n_files x n_points, 4, 3
+        if len(LR_img) != len(HR_img):
+            print("len LR", len(LR_img), " len HR", len(HR_img))
+            print("train and test not the same length")
+            sys.exit(0)
+
         for ind in range(datanum):
             row = LR_img[ind].shape[0]
             col = LR_img[ind].shape[1]
@@ -103,7 +106,7 @@ def Test(model_list, dat):
         ### calculate column and channel
         c1 = i % 4 
         c2 = (i-c1) // 4 
-        featMat = dat[:,:, c2]
+        featMat = dat[:, :, c2]
         ### make predictions
         predArr[:, c1, c2] = fit_train.predict(featMat)
 
@@ -131,10 +134,35 @@ def CrossValidation(X, y, depth, K):
 
     return((np.mean(cv_error), np.std(cv_error)))
 
+# input a single img!!
 def SuperResolution(LR_img, HR_dir, model_list):
-    feat = Features(LR_img, HR_img, each_pixel = True)
+
+    def reshape(prediction, numr, numc):
+        new_pic = np.zeros([2*numr, 2*numc, 3])
+        # print("predic", prediction)
+        rpos = 0
+        cpos = 0
+        for i, pred in enumerate(prediction):
+            if i!=0 and i%numc == 0:
+                rpos += 2
+                cpos = 0
+
+            new_pic[rpos:(rpos+2),cpos:(cpos+2),:] = pred.reshape(2,2,3)
+            cpos += 2
+
+        print("newpic", new_pic.shape)
+        return(new_pic)
+
+    # numr = [x.shape[0] for x in LR_img] 
+    # numc = [x.shape[1] for x in LR_img]
+    numr = LR_img.shape[0]
+    numc = LR_img.shape[1]
+    feat = Features([LR_img], [], each_pixel = True)
+
     pred = Test(model_list, feat)
+    predicted_img = reshape(pred, numr, numc)
     # save prediction
+    cv2.imwrite(HR_dir, predicted_img)
 
 
 
@@ -143,35 +171,47 @@ if __name__ == "__main__":
     start = time.time()
 
     print(os.curdir)
-    dir = "/Users/tianchenwang/Git/proj3/train_set"
+    dir = "/Users/tianchenwang/Git/proj3/"
     os.chdir(dir)
 
-    LR_dir = dir + "/LR/"
-    HR_dir = dir + "/HR/"
-    LR_img = os.listdir(LR_dir)[:10]
-    HR_img = os.listdir(HR_dir)[:10]
+    LR_dir = dir + "train_set/LR/"
+    HR_dir = dir + "train_set/HR/"
+    # flower
+    LR_img_dir = os.listdir(LR_dir)[1000:1500]
+    HR_img_dir = os.listdir(HR_dir)[1000:1500]
 
     # read image as numpy array
-    LR_img = [cv2.imread(LR_dir+i) for i in LR_img]
-    HR_img = [cv2.imread(HR_dir+i) for i in HR_img]
-
-    print(len(LR_img))
-    print(len(HR_img))
+    LR_img = [cv2.imread(LR_dir+i) for i in LR_img_dir]
+    HR_img = [cv2.imread(HR_dir+i) for i in HR_img_dir]
+    
+    print("data loaded...")
+    # print(LR_img[1].shape)
+    # print(HR_img[1].shape)
 
     ## features extraction
+        # center = 0
     feat, resp = Features(LR_img, HR_img)
 
     ## models training 
-    # models = Train(feat, resp)
+    models = Train(feat, resp, depth=5)
+    # save model
+    for i, model in enumerate(models):
+        dump(model, 'models/fruit_'+str(i)+'.joblib') 
+    
+    print("models saved...")
+
+    ## generate new imgs
+    # pred_dir = '/Users/tianchenwang/Git/proj3/prediction/3.jpg'
+    # SuperResolution(LR_img[3], pred_dir, models)
 
     ## cross validation
-    # """
+    """
     para_depth = [5,6,7]
     crr = np.zeros(len(para_depth))
     for dep in para_depth:
         print("dep: ", dep, CrossValidation(feat, resp, dep, 3))
 
-    # """
+    """
 
 
     end = time.time()
