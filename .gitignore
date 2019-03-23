@@ -2,3 +2,4 @@
 *.jpg
 data/train_set/label.csv
 test/SRCNN-Demo-Shengjie/checkpoint/train.h5
+*.npy
