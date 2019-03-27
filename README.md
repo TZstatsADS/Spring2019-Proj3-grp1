@@ -16,7 +16,7 @@ Term: Spring 2019
 + Project summary: In this project, we created two classification engines for enhance the resolution of images. The first is based on Baseline Model provided and the second one in an modification of SRCNN. All the algorithms are implemented with Python3. The PSNR of the second was more than 26. 
 	
 
-**Contribution statement**: Shengjie Sun built the pipeline for implementing SRCNN and modified this classical method. Zhicheng Zhang & Yao Yu covered some details in image process and computing speed. Tianchen Wang built the baseline model in python. Yue Zhang make the presentation. All team members contributed equally in all stages of this project. All team members approve our work presented in this GitHub repository including this contributions statement. 
+**Contribution statement**: Shengjie Sun built the pipeline for implementing SRCNN and modified this classical method. Zhicheng Zhang & Yao Yu covered some details in image process and computing speed. Tianchen Wang built the baseline model in python. Yue Zhang made the presentation. All team members contributed equally in all stages of this project. All team members approve our work presented in this GitHub repository including this contributions statement. 
 
 Following [suggestions](http://nicercode.github.io/blog/2013-04-05-projects/) by [RICH FITZJOHN](http://nicercode.github.io/about/#Team) (@richfitz). This folder is orgarnized as follows.
 
