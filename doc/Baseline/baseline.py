@@ -8,7 +8,6 @@ import sys
 from joblib import dump, load
 from sklearn.ensemble import GradientBoostingRegressor
 
-
 def Features(LR_img, HR_img, n_points = 1000, each_pixel = False):
 
     datanum = len(LR_img)
@@ -18,7 +17,7 @@ def Features(LR_img, HR_img, n_points = 1000, each_pixel = False):
     # find features for a certain pixel in LR
     def surrounding(img, r, c):
         # adding zero edges
-        # central = img[r, c]
+#         central = img[r, c]
         central = 0
         new_img = np.insert(img, [0,img.shape[0]-1], values=0, axis=0)
         new_img = np.insert(new_img, [0,img.shape[1]-1], values=0, axis=1)
@@ -35,33 +34,60 @@ def Features(LR_img, HR_img, n_points = 1000, each_pixel = False):
         new_img[r+1,c+1]-central])
 
         return(surr)
+      
+    def surroundingfaster(new_img ,r, c):
+        r += 1; c += 1
+        central = 0
+        surr = np.array(
+        [new_img[r-1,c-1]-central, 
+        new_img[r-1,c]-central,
+        new_img[r-1,c+1]-central,
+        new_img[r,c-1]-central,
+        new_img[r,c+1]-central, 
+        new_img[r+1,c-1]-central,
+        new_img[r+1,c]-central,
+        new_img[r+1,c+1]-central])
+        
+        return(surr)
     
     # find corresponding pixels(4) in HR
     def corresponding(img, r, c):
         raw = img[2*(r+1)-2:2*(r+1), 2*(c+1)-2:2*(c+1)]
+#         print(raw)
         nraw = np.concatenate(raw)
         return(nraw)
     
     # capture only features
+    ##
+    ### 
+    #### too slow here.
+    
     if each_pixel:
         for ind in range(datanum):
-            row = np.array(range(LR_img[ind].shape[0]))
-            col = np.array(range(LR_img[ind].shape[1]))
+            img = LR_img[ind]
+            row = np.array(range(img.shape[0]))
+            col = np.array(range(img.shape[1]))
+            
+            new_img = np.insert(img, [0,img.shape[0]-1], values=0, axis=0)
+            new_img = np.insert(new_img, [0,img.shape[1]-1], values=0, axis=1)
             for r in row:
                 for c in col:
-                    features.append(surrounding(LR_img[ind], r, c))
+                    features.append(surroundingfaster(new_img, r, c))
+            if ind % 100 == 0:
+              print("featuring goes to number", ind)
 
         return(np.array(features))
+    
+    #####
 
     else:
         # make sure you have the right shape of features 
         # feat : n_files x n_points, 8, 3
         # resp : n_files x n_points, 4, 3
         if len(LR_img) != len(HR_img):
-            print("len LR", len(LR_img), " len HR", len(HR_img))
-            print("train and test not the same length")
-            sys.exit(0)
-
+          print("train and test not the same length")
+          sys.exit(0)
+        
         for ind in range(datanum):
             row = LR_img[ind].shape[0]
             col = LR_img[ind].shape[1]
@@ -77,8 +103,9 @@ def Features(LR_img, HR_img, n_points = 1000, each_pixel = False):
 
             # features.append(np.array(feats))
             # responses.append(np.array(subpixels))
+            if ind % 10 == 0:
+              print("featuring goes to number", ind)
         return(np.array(features), np.array(responses))
-
 
 def Train(feature, response, depth = 3):
     model_list = []
@@ -152,19 +179,25 @@ def SuperResolution(LR_img, HR_dir, model_list):
 
         print("newpic", new_pic.shape)
         return(new_pic)
-
-    # numr = [x.shape[0] for x in LR_img] 
-    # numc = [x.shape[1] for x in LR_img]
+      
     numr = LR_img.shape[0]
     numc = LR_img.shape[1]
+    
+    t0 = time.clock()
     feat = Features([LR_img], [], each_pixel = True)
-
+    print("feature extraction time: ", time.clock() - t0)
+    
+#     t0 = time.clock()
     pred = Test(model_list, feat)
+#     print("test time: ", time.clock() - t0)
+    
+#     t0 = time.clock()
     predicted_img = reshape(pred, numr, numc)
+#     print("reshape time: ", time.clock() - t0)
+    
     # save prediction
+    print("save predicted pic")
     cv2.imwrite(HR_dir, predicted_img)
-
-
 
 if __name__ == "__main__":
     
