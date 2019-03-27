@@ -8,10 +8,10 @@ Term: Spring 2019
 + Team 1
 + Team members
 	+ Shengjie Sun (ss5593@columbia.edu)
-	+ team member 2
-	+ team member 3
-	+ team member 4
-	+ team member 5
+	+ Wang Tianchen (tw2665@columbia.edu)
+	+ Yao Yu (yy2906@columbia.edu)
+	+ Zhang Yue (yz3383@columbia.edu)
+	+ Zhang Zhicheng (zz2555@columbia.edu)
 
 + Project summary: In this project, we created two classification engines for enhance the resolution of images. The first is based on Baseline Model provided and the second one in an modification of SRCNN. All the algorithms are implemented with Python3. The PSNR of the second was more than 26. 
 	
