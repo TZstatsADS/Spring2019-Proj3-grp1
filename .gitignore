@@ -3,3 +3,5 @@
 data/train_set/label.csv
 test/SRCNN-Demo-Shengjie/checkpoint/train.h5
 *.npy
+doc/SRCNN/.ipynb_checkpoints/main_pred-checkpoint.ipynb
+doc/SRCNN/.ipynb_checkpoints/main_pred-checkpoint.ipynb
